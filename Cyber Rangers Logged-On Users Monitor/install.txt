@@ -4,3 +4,15 @@
 
 [string]$InstallUtilPath = "$env:windir\Microsoft.NET\Framework64\$(Get-ChildItem -Path "$env:windir\Microsoft.NET\Framework64" -Name "v2.*")\installutil.exe"
 & $InstallUtilPath service.exe
+
+
+
+
+
+
+cd 'C:\Program Files'
+mkdir 'Cyber Rangers'
+cd '.\Cyber Rangers'
+mkdir 'Cyber Rangers Logged-On Users Monitor'
+cd '.\Cyber Rangers Logged-On Users Monitor'
+sc create "Cyber Rangers Logged-On Users Monitor" binpath= "C:\Program Files\Cyber Rangers\Cyber Rangers Logged-On Users Monitor\crmonitor.exe" Displayname= "Cyber Rangers Logged-On Users Monitor" start= auto

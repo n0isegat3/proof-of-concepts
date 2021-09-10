@@ -76,7 +76,7 @@ function Invoke-MyService
 		}
 		else
 		{
-			Start-Sleep -Seconds 10 # a lower number will make your service active more often and use more CPU cycles
+			Start-Sleep -Seconds 300 # a lower number will make your service active more often and use more CPU cycles
 		}
 	}
 	$global:bServiceRunning = $false
