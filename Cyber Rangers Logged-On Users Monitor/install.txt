@@ -1,0 +1,6 @@
+[string]$InstallUtilPath = "$env:windir\Microsoft.NET\Framework64\$(Get-ChildItem -Path "$env:windir\Microsoft.NET\Framework64" -Name "v4.*")\installutil.exe"
+& $InstallUtilPath service.exe
+
+
+[string]$InstallUtilPath = "$env:windir\Microsoft.NET\Framework64\$(Get-ChildItem -Path "$env:windir\Microsoft.NET\Framework64" -Name "v2.*")\installutil.exe"
+& $InstallUtilPath service.exe

@@ -1,0 +1,119 @@
+﻿<File version="3.2">
+  <Code><![CDATA[# Warning: Do not rename Start-MyService, Invoke-MyService and Stop-MyService functions
+
+
+function Start-MyService
+{
+	# Place one time startup code here.
+	# Initialize global variables and open connections if needed
+	$global:bRunService = $true
+	$global:bServiceRunning = $false
+	$global:bServicePaused = $false
+}
+
+function Invoke-MyService
+{
+	$global:bServiceRunning = $true
+	while ($global:bRunService)
+	{
+		try
+		{
+			if ($global:bServicePaused -eq $false) #Only act if service is not paused
+			{							
+				$regexa = '.+Domain="(.+)",Name="(.+)"$'
+				$regexd = '.+LogonId="(\d+)"$'
+				
+				$logontype = @{
+					"0"  = "Local System"
+					"2"  = "Interactive" #(Local logon)
+					"3"  = "Network" # (Remote logon)
+					"4"  = "Batch" # (Scheduled task)
+					"5"  = "Service" # (Service account logon)
+					"7"  = "Unlock" #(Screen saver)
+					"8"  = "NetworkCleartext" # (Cleartext network logon)
+					"9"  = "NewCredentials" #(RunAs using alternate credentials)
+					"10" = "RemoteInteractive" #(RDP\TS\RemoteAssistance)
+					"11" = "CachedInteractive" #(Local w\cached credentials)
+				}
+				
+				$logon_sessions = @(gwmi win32_logonsession)
+				$logon_users = @(gwmi win32_loggedonuser)
+				
+				$session_user = @{ }
+				
+				$logon_users | % {
+					$_.antecedent -match $regexa > $nul
+					$username = $matches[1] + "\" + $matches[2]
+					$_.dependent -match $regexd > $nul
+					$session = $matches[1]
+					$session_user[$session] += $username
+				}
+				
+				
+				$logon_sessions | %{
+					$starttime = [management.managementdatetimeconverter]::todatetime($_.starttime)
+					
+					$loggedonuser = New-Object -TypeName psobject
+					$loggedonuser | Add-Member -MemberType NoteProperty -Name "Session" -Value $_.logonid
+					$loggedonuser | Add-Member -MemberType NoteProperty -Name "User" -Value $session_user[$_.logonid]
+					$loggedonuser | Add-Member -MemberType NoteProperty -Name "Type" -Value $logontype[$_.logontype.tostring()]
+					$loggedonuser | Add-Member -MemberType NoteProperty -Name "Auth" -Value $_.authenticationpackage
+					$loggedonuser | Add-Member -MemberType NoteProperty -Name "StartTime" -Value $starttime
+					
+					Write-Host ('Session {0} | User {1} | Type {2} | Auth {3} | StartTime {4}' -f $loggedonuser.Session, $loggedonuser.user, $loggedonuser.type, $loggedonuser.auth, $loggedonuser.starttime)
+				}
+			}
+		}
+		catch
+		{
+			# Log exception in application log
+			Write-Host $_.Exception.Message
+		}
+		# Adjust sleep timing to determine how often your service becomes active.
+		if ($global:bServicePaused -eq $true)
+		{
+			Start-Sleep -Seconds 20 # if the service is paused we sleep longer between checks.
+		}
+		else
+		{
+			Start-Sleep -Seconds 10 # a lower number will make your service active more often and use more CPU cycles
+		}
+	}
+	$global:bServiceRunning = $false
+}
+
+function Stop-MyService
+{
+	$global:bRunService = $false # Signal main loop to exit
+	$CountDown = 30 # Maximum wait for loop to exit
+	while ($global:bServiceRunning -and $Countdown -gt 0)
+	{
+		Start-Sleep -Seconds 1 # wait for your main loop to exit
+		$Countdown = $Countdown - 1
+	}
+	# Place code to be executed on service stop here
+	# Close files and connections, terminate jobs and
+	# use remove-module to unload blocking modules
+}
+
+function Pause-MyService
+{
+	# Service is being paused
+	# Save state 
+	$global:bServicePaused = $true
+	# Note that the thread your PowerShell script is running on is not suspended on 'pause'.
+	# It is your responsibility in the service loop to pause processing until a 'continue' command is issued.
+	# It is recommended to sleep for longer periods between loop iterations when the service is paused.
+	# in order to prevent excessive CPU usage by simply waiting and looping.
+}
+
+function Continue-MyService
+{
+	# Service is being continued from a paused state
+	# Restore any saved states if needed
+	$global:bServicePaused = $false
+}
+
+
+]]></Code>
+</File>
