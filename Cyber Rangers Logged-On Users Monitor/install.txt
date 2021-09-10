@@ -15,4 +15,4 @@ mkdir 'Cyber Rangers'
 cd '.\Cyber Rangers'
 mkdir 'Cyber Rangers Logged-On Users Monitor'
 cd '.\Cyber Rangers Logged-On Users Monitor'
-sc create "Cyber Rangers Logged-On Users Monitor" binpath= "C:\Program Files\Cyber Rangers\Cyber Rangers Logged-On Users Monitor\crmonitor.exe" Displayname= "Cyber Rangers Logged-On Users Monitor" start= auto
+sc create "crlogusr" binpath= "C:\Program Files\Cyber Rangers\Cyber Rangers Logged-On Users Monitor\crlogusr.exe" Displayname= "Cyber Rangers Logged-On Users Monitor" start= auto
