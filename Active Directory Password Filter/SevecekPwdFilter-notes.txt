@@ -1,0 +1,16 @@
+
+"Password must meet complexity requirements" must be enforced by policy. 
+
+SevecekPWDfilter must be stored in the %SystemRoot%\system32 folder. 
+
+Registry:
+HKLM\SYSTEM\CurrentControlSet\Control\Lsa 
+
+"Notification Packages" = multi-string = 
+add last: sevecekPWDfilter
+(the filter file name without the ".dll" extension)
+
+restart. 
+
+
+

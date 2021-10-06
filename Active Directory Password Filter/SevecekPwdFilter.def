@@ -1,0 +1,8 @@
+
+LIBRARY SevecekPwdFilter
+
+EXPORTS
+	InitializeChangeNotify
+	PasswordFilter
+	PasswordChangeNotify
+	
